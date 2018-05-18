@@ -1,0 +1,49 @@
+/** primtives */
+?- hastype([], unit, W).
+?- hastype([], bool(true), W).
+?- hastype([], const(2), W).
+/** expressions without variables */
+?- hastype([], sum(diff(const(3), const(1)), const(1)), W).
+?- hastype([], div(mod(const(3), const(2)), const(7)), W).
+?- hastype([], sum(const(2), not(true)), W). /* false */
+?- hastype([], or(true, and(true, false)), W).
+?- hastype([], or(bool(true)), W). /* false */
+?- hastype([], and(eq(const(2), const(4)), ge(const(2), const(3))), W).
+?- hastype([], and(sum(const(2), const(4)), ge(const(2), const(3))), W). /* false */
+/** expressions with variables */
+?- hastype([(x, intT)], id(x), W).
+?- hastype([(x, boolT), (y, unitT)], id(y), W).
+?- hastype([(x, intT)], sum(id(x), const(3)), W).
+?- hastype([(x, intT), (y, boolT)], and(eq(sum(id(x), const(1)), const(2)), id(y)), W).
+?- hastype([(x, boolT), (y, boolT)], and(eq(sum(id(x), const(1)), const(2)), id(y)), W).
+?- hastype([(y, boolT), (x, intT)], abs(id(x)), W).
+?- hastype([(y, boolT), (x, intT)], lt(id(x), const(23)), W).
+?- hastype([(y, boolT), (x, intT)], eq(id(x), const(23)), W).
+?- hastype([(y, boolT), (x, intT)], eq(true, false), W). /* false */
+?- hastype([(y, boolT), (x, intT)], and(true,false), W).
+?- hastype([(y, boolT), (x, intT)], if_then_else(bool(true), const(23), variable(y)), W). /* false */
+?- hastype([(y, intT), (x, intT)], if(true, const(23), id(y)), W).
+?- hastype([(y, boolT), (x, intT)], tuple([true, false, const(23), id(y), id(x)]), W).
+?- hastype([(y, boolT), (x, intT)], proj(0, tuple([true, false, const(23), id(y), id(x)])), W).
+?- hastype([(y, boolT), (x, intT)], proj(3, tuple([true,false, const(23), id(y), id(x)])), W).
+/** Abstractions */
+?- hastype([(y, boolT), (x, intT)], lambda(x, sum(id(x), const(32))), W).
+?- hastype([(y, boolT), (x, intT)], call(lambda(x, sum(id(x), const(32))), const(23)), W).
+?- hastype([(y, boolT), (x, intT)], call(lambda(y, and(id(y), false)), const(23)), W). /* false */
+?- hastype([(y, boolT), (x, intT)], call(lambda(y, and(id(y), false)), true), W).
+/* Local Definitions */
+?- typeElaborates([(y, boolT), (x, intT)], let(y, true), W).
+?- typeElaborates([(y, boolT), (x, intT)], parallel(let(y, const(23)), let(x, true)), W).
+?- typeElaborates([(y, boolT), (x, intT)], sequential(let(y, const(23)), let(x, eq(const(6), id(y)))), W).
+?- typeElaborates([(y, boolT), (x, intT)], parallel(let(id(y), const(23)), let(id(x), eq(const(6), id(y)))), W). /* false */
+?- typeElaborates([(y, boolT), (x, intT)], letloc(let(z, const(23)) , let(x, le(id(z),const(45)) ) ), W).
+?- hastype([(y, boolT), (x, intT)], let(y, true, and(id(y), false)), W).
+?- hastype([], let(y, true, and(id(y), false)), W).
+?- hastype([], letloc(sequential(let(y, true), let(x, false)), and(id(y),id(x))), W).
+?- hastype([], letloc(parallel(let(y, true), x_is_e(variable(x), bool(false))), and(variable(y),variable(x))), W).
+?- hastype([], let_d_in_e( d1_in_d2( x_is_e(variable(y), bool(true)), x_is_e(variable(x), and(variable(y),bool(false))) ),and(variable(x),variable(x))),W).
+/* Ambiguous expressions */
+?- hastype([], eq(plus(A, B), sub(C, D)), T).
+?- hastype([], and(E1, E2), T).
+?- hastype(Gamma, eq(and(X,Y),plus(A,B)), T).
+

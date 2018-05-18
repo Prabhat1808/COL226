@@ -1,0 +1,20 @@
+
+ hastype([], unit, W).
+ hastype([], true, W).
+ hastype([], const(2), W).
+
+ hastype([], sum(diff(const(3), const(1)), const(1)), W).
+ hastype([], and(eq(const(2), const(4)), ge(const(2), const(3))), W).
+
+ hastype([(x, intT), (y, boolT)], and(eq(sum(id(x), const(1)), const(2)), id(y)), W).
+ hastype([(y, boolT), (x, intT)], if(true, const(23), id(y)), W). --evaluates to false
+ hastype([(y, intT), (x, intT)], if(true, const(23), id(y)), W).
+ hastype([(y, boolT), (x, intT)], proj(0, tuple([true, false, const(23), id(y), id(x)])), W).
+
+ hastype([(y, boolT), (x, intT)], call(lambda(x, sum(id(x), const(32))), const(23)), W).
+ hastype([(y, boolT), (x, intT)], call(lambda(y, and(id(y), false)), const(23)), W). --evaluates to false
+
+ typeElaborates([(y, boolT), (x, intT)], parallel(letdef(y, const(23)), letdef(x, true)), W).
+ typeElaborates([(y, boolT), (x, intT)], sequential(let(y, const(23)), let(x, eq(const(6), id(y)))), W).
+ typeElaborates([(y, boolT), (x, intT)], parallel(let(id(y), const(23)), let(id(x), eq(const(6), id(y)))), W). --evaluates to false
+ typeElaborates([(y, boolT), (x, intT)], letloc(let(z, const(23)) , let(x, le(id(z),const(45)) ) ), W).
